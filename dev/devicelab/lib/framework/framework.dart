@@ -46,6 +46,8 @@ Future<TaskResult> task(TaskFunction task) {
 }
 
 class _TaskRunner {
+  // Following callbacks are executed in [runTask] and [_connectToRunnerIsolate]
+  // in runner.dart
   _TaskRunner(this.task) {
     registerExtension('ext.cocoonRunTask',
         (String method, Map<String, String> parameters) async {
