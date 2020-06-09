@@ -31,6 +31,21 @@ String getArtifactPath() {
     );
 }
 
+/// Return the item is in idList if find a match, otherwise return null
+String _findMatchId(List<String> idList, String idPattern) {
+  String candidate;
+  idPattern = idPattern.toLowerCase();
+  for(final String id in idList) {
+    if (id.toLowerCase() == idPattern) {
+      return id;
+    }
+    if (id.toLowerCase().startsWith(idPattern)) {
+      candidate ??= id;
+    }
+  }
+  return candidate;
+}
+
 /// The root of the API for controlling devices.
 DeviceDiscovery get devices => DeviceDiscovery();
 
@@ -61,6 +76,9 @@ abstract class DeviceDiscovery {
   /// Calling this method does not guarantee that the same device will be
   /// returned. For such behavior see [workingDevice].
   Future<void> chooseWorkingDevice();
+
+  /// Select the device with ID strati with deviceId, return the device.
+  Future<Device> chooseWorkingDeviceById(String deviceId);
 
   /// A device to work with.
   ///
@@ -170,6 +188,19 @@ class AndroidDeviceDiscovery implements DeviceDiscovery {
   }
 
   @override
+  Future<Device> chooseWorkingDeviceById(String deviceId) async {
+    deviceId = _findMatchId(await discoverDevices(), deviceId);
+    if (deviceId != null) {
+      _workingDevice = AndroidDevice(deviceId: deviceId);
+      print('Choose device by ID: ' + _workingDevice.toString());
+    }
+    else {
+      print('Device with ID $deviceId is not found.');
+    }
+    return workingDevice;
+  }
+
+  @override
   Future<List<String>> discoverDevices() async {
     final List<String> output = (await eval(adbPath, <String>['devices', '-l'], canFail: false))
         .trim().split('\n');
@@ -267,6 +298,19 @@ class FuchsiaDeviceDiscovery implements DeviceDiscovery {
     }
     _workingDevice = allDevices.first;
     print('Device chosen: $_workingDevice');
+  }
+
+  @override
+  Future<Device> chooseWorkingDeviceById(String deviceId) async {
+    deviceId = _findMatchId(await discoverDevices(), deviceId);
+    if (deviceId != null) {
+      _workingDevice = FuchsiaDevice(deviceId: deviceId);
+      print('Choose device by ID: ' + _workingDevice.toString());
+    }
+    else {
+      print('Device with ID $deviceId is not found.');
+    }
+    return workingDevice;
   }
 
   @override
@@ -549,6 +593,19 @@ class IosDeviceDiscovery implements DeviceDiscovery {
     // TODO(yjbanov): filter out and warn about those with low battery level
     _workingDevice = allDevices[math.Random().nextInt(allDevices.length)];
     print('Device chosen: $_workingDevice');
+  }
+
+  @override
+  Future<Device> chooseWorkingDeviceById(String deviceId) async {
+    deviceId = _findMatchId(await discoverDevices(), deviceId);
+    if (deviceId != null) {
+      _workingDevice = IosDevice(deviceId: deviceId);
+      print('Choose device by ID: ' + _workingDevice.toString());
+    }
+    else {
+      print('Device with ID $deviceId is not found.');
+    }
+    return workingDevice;
   }
 
   // Returns a colon-separated environment variable that contains the paths

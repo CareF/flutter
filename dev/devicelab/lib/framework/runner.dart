@@ -24,6 +24,7 @@ Future<Map<String, dynamic>> runTask(
   bool silent = false,
   String localEngine,
   String localEngineSrcPath,
+  String deviceId,
 }) async {
   final String taskExecutable = 'bin/tasks/$taskName.dart';
 
@@ -36,6 +37,7 @@ Future<Map<String, dynamic>> runTask(
     if (localEngine != null) '-DlocalEngine=$localEngine',
     if (localEngineSrcPath != null) '-DlocalEngineSrcPath=$localEngineSrcPath',
     taskExecutable,
+    deviceId,
   ]);
 
   bool runnerFinished = false;

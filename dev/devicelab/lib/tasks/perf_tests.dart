@@ -16,6 +16,17 @@ import '../framework/framework.dart';
 import '../framework/ios.dart';
 import '../framework/utils.dart';
 
+/// To setup the context variables for the tests, according to the arguments 
+/// provided from the caller.
+/// 
+/// The first argument is the default device.
+/// Currently it's only used to set up the default device. 
+Future<void> setupContext(List<String> args) async {
+  if (args.isNotEmpty) {
+    await devices.chooseWorkingDeviceById(args[0]);
+  }
+}
+
 TaskFunction createComplexLayoutScrollPerfTest() {
   return PerfTest(
     '${flutterDirectory.path}/dev/benchmarks/complex_layout',
