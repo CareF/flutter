@@ -261,9 +261,10 @@ final ArgParser _argParser = ArgParser()
     'device-id',
     abbr: 'd', 
     help: 'Target device id (prefixes is allowed, names are not supported).\n'
-          'This still respects the device operating system settings in the\n'
-          'test case, and will results in a random device if given ID is not\n'
-          'found.',
+          'The option will be ignored if the test target is not part of\n'
+          'perf_tests.dart. This still respects the device operating system\n'
+          'settings in thei test case, and will results in a random device if\n'
+          'given ID is not found.',
   )
   ..addOption(
     'ab',
