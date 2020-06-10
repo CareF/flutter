@@ -14,7 +14,8 @@ import 'package:flutter_devicelab/tasks/integration_tests.dart';
 
 final Directory codegenAppPath = dir(path.join(flutterDirectory.path, 'dev/integration_tests/codegen'));
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   deviceOperatingSystem = DeviceOperatingSystem.android;
+  await setupContext(args);
   await task(createCodegenerationIntegrationTest());
 }

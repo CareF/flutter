@@ -11,6 +11,7 @@ import 'package:path/path.dart' as path;
 import 'package:flutter_devicelab/framework/adb.dart';
 import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:flutter_devicelab/framework/utils.dart';
+import 'package:flutter_devicelab/tasks/test_context.dart';
 
 void generateMain(Directory appDir, String sentinel) {
   final String mainCode = '''
@@ -62,7 +63,8 @@ void main() {
     .writeAsStringSync(mainCode, flush: true);
 }
 
-void main() {
+Future<void> main(List<String> args) async {
+  disableContext(args);
   deviceOperatingSystem = DeviceOperatingSystem.fuchsia;
 
   task(() async {

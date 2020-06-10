@@ -8,8 +8,9 @@ import 'package:flutter_devicelab/tasks/perf_tests.dart';
 import 'package:flutter_devicelab/framework/adb.dart';
 import 'package:flutter_devicelab/framework/framework.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   deviceOperatingSystem = DeviceOperatingSystem.ios;
+  await setupContext(args);
   // It's intended to use the Gallery startup test as a smoke test on macOS
   // Catalina.
   await task(createFlutterGalleryStartupTest());

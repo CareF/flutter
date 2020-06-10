@@ -8,7 +8,10 @@ import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:flutter_devicelab/framework/utils.dart';
 import 'package:flutter_devicelab/tasks/perf_tests.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  // Using default Operating System: android.
+  // deviceOperatingSystem = DeviceOperatingSystem.android;
+  await setupContext(args);
   await task(MemoryTest(
     '${flutterDirectory.path}/dev/integration_tests/flutter_gallery',
     'test_memory/memory_nav.dart',

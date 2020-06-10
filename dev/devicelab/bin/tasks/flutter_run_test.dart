@@ -10,6 +10,7 @@ import 'package:path/path.dart' as path;
 import 'package:flutter_devicelab/framework/adb.dart';
 import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:flutter_devicelab/framework/utils.dart';
+import 'package:flutter_devicelab/tasks/test_context.dart';
 
 final Directory flutterGalleryDir = dir(path.join(flutterDirectory.path, 'examples/hello_world'));
 final File runTestSource = File(path.join(
@@ -20,8 +21,9 @@ const Pattern failedMessageMatch = '+1: example failed [E]';
 const Pattern skippedMessageMatch = '+1 -1: example skipped';
 const Pattern finishedMessageMatch = '+1 ~1 -1: Some tests failed.';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   deviceOperatingSystem = DeviceOperatingSystem.android;
+  setupContext(args);
   await task(createFlutterRunTask);
 }
 

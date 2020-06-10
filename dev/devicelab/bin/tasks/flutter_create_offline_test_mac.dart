@@ -4,7 +4,9 @@
 
 import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:flutter_devicelab/tasks/integration_tests.dart';
+import 'package:flutter_devicelab/tasks/test_context.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  disableContext(args);
   await task(createFlutterCreateOfflineTest());
 }

@@ -10,9 +10,11 @@ import 'package:flutter_devicelab/tasks/new_gallery.dart';
 import 'package:flutter_devicelab/framework/adb.dart';
 import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:path/path.dart' as path;
+import 'package:flutter_devicelab/tasks/test_context.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   deviceOperatingSystem = DeviceOperatingSystem.ios;
+  await setupContext(args);
 
   final Directory galleryParentDir = Directory.systemTemp.createTempSync('new_gallery_test');
   final Directory galleryDir = Directory(path.join(galleryParentDir.path, 'gallery'));

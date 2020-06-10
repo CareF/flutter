@@ -10,8 +10,10 @@ import 'package:path/path.dart' as path;
 
 import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:flutter_devicelab/framework/utils.dart';
+import 'package:flutter_devicelab/tasks/test_context.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  disableContext(args);
   await task(const NewGalleryChromeRunTest().run);
 }
 

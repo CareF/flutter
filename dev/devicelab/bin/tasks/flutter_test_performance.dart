@@ -22,6 +22,7 @@ import 'package:path/path.dart' as path;
 
 import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:flutter_devicelab/framework/utils.dart';
+import 'package:flutter_devicelab/tasks/test_context.dart';
 
 // Matches the output of the "test" package, e.g.: "00:01 +1 loading foo"
 final RegExp testOutputPattern = RegExp(r'^[0-9][0-9]:[0-9][0-9] \+[0-9]+: (.+?) *$');
@@ -98,7 +99,8 @@ Future<int> runTest({bool coverage = false}) async {
   return clock.elapsedMilliseconds;
 }
 
-void main() {
+Future<void> main(List<String> args) async {
+  disableContext(args);
   task(() async {
     final File nodeSourceFile = File(path.join(
       flutterDirectory.path, 'packages', 'flutter', 'lib', 'src', 'foundation', 'node.dart',

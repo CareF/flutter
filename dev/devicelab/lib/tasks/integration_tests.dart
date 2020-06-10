@@ -10,6 +10,8 @@ import '../framework/adb.dart';
 import '../framework/framework.dart';
 import '../framework/utils.dart';
 
+export 'test_context.dart';
+
 TaskFunction createChannelsIntegrationTest() {
   return DriverTest(
     '${flutterDirectory.path}/dev/integration_tests/channels',

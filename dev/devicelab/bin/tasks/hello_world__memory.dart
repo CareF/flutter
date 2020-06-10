@@ -34,6 +34,9 @@ class HelloWorldMemoryTest extends MemoryTest {
   }
 }
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  // Using default Operating System: android.
+  // deviceOperatingSystem = DeviceOperatingSystem.android;
+  await setupContext(args);
   await task(HelloWorldMemoryTest().run);
 }

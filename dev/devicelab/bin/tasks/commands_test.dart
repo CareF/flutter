@@ -12,8 +12,12 @@ import 'package:vm_service_client/vm_service_client.dart';
 import 'package:flutter_devicelab/framework/adb.dart';
 import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:flutter_devicelab/framework/utils.dart';
+import 'package:flutter_devicelab/tasks/test_context.dart';
 
-void main() {
+Future<void> main(List<String> args) async {
+  // Using default Operating System: android.
+  // deviceOperatingSystem = DeviceOperatingSystem.android;
+  await setupContext(args);
   task(() async {
     int vmServicePort;
 

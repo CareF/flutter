@@ -55,7 +55,8 @@ class BackButtonMemoryTest extends MemoryTest {
   }
 }
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   deviceOperatingSystem = DeviceOperatingSystem.android;
+  await setupContext(args);
   await task(BackButtonMemoryTest().run);
 }

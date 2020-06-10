@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter_devicelab/framework/adb.dart';
 import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:flutter_devicelab/framework/utils.dart';
+import 'package:flutter_devicelab/tasks/test_context.dart';
 
 Future<String> _runWithMode(String mode, String deviceId) async {
   final StringBuffer stderr = StringBuffer();
@@ -46,7 +47,10 @@ Future<TaskResult> run() async {
   return TaskResult.success(null);
 }
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  // Using default Operating System: android.
+  // deviceOperatingSystem = DeviceOperatingSystem.android;
+  await setupContext(args);
   deviceOperatingSystem = DeviceOperatingSystem.android;
   await task(run);
 }

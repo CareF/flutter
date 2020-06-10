@@ -10,6 +10,7 @@ import 'package:path/path.dart' as path;
 import 'package:flutter_devicelab/framework/adb.dart';
 import 'package:flutter_devicelab/framework/framework.dart';
 import 'package:flutter_devicelab/framework/utils.dart';
+import 'package:flutter_devicelab/tasks/test_context.dart';
 
 Future<void> testReload(Process process, { Future<void> Function() onListening }) async {
   section('Testing hot reload, restart and quit');
@@ -89,7 +90,8 @@ Future<void> testReload(Process process, { Future<void> Function() onListening }
     throw TaskResult.failure('exit code was not 0');
 }
 
-void main() {
+Future<void> main(List<String> args) async {
+  disableContext(args);
   const String kAppId = 'com.yourcompany.integration_ui';
   const String kActivityId = '$kAppId/com.yourcompany.integration_ui.MainActivity';
 
