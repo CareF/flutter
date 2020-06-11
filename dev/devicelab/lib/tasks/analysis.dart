@@ -7,8 +7,8 @@ import 'dart:io';
 
 import 'package:path/path.dart' as path;
 
-import '../framework/framework.dart';
-import '../framework/utils.dart';
+import 'package:flutter_devicelab/framework/framework.dart';
+import 'package:flutter_devicelab/framework/utils.dart';
 
 /// Run each benchmark this many times and compute average, min, max.
 ///

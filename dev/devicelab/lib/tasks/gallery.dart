@@ -7,9 +7,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
-import '../framework/adb.dart';
-import '../framework/framework.dart';
-import '../framework/utils.dart';
+import 'package:flutter_devicelab/framework/adb.dart';
+import 'package:flutter_devicelab/framework/framework.dart';
+import 'package:flutter_devicelab/framework/utils.dart';
 
 TaskFunction createGalleryTransitionTest({ bool semanticsEnabled = false }) {
   return GalleryTransitionTest(semanticsEnabled: semanticsEnabled);

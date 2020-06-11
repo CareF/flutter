@@ -11,10 +11,10 @@ import 'package:flutter_devicelab/tasks/track_widget_creation_enabled_task.dart'
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
-import '../framework/adb.dart';
-import '../framework/framework.dart';
-import '../framework/ios.dart';
-import '../framework/utils.dart';
+import 'package:flutter_devicelab/framework/adb.dart';
+import 'package:flutter_devicelab/framework/framework.dart';
+import 'package:flutter_devicelab/framework/ios.dart';
+import 'package:flutter_devicelab/framework/utils.dart';
 
 TaskFunction createComplexLayoutScrollPerfTest() {
   return PerfTest(

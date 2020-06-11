@@ -8,8 +8,8 @@ import 'dart:io';
 import 'package:flutter_devicelab/tasks/perf_tests.dart';
 
 
-import '../framework/framework.dart';
-import '../framework/utils.dart';
+import 'package:flutter_devicelab/framework/framework.dart';
+import 'package:flutter_devicelab/framework/utils.dart';
 
 class NewGalleryPerfTest extends PerfTest {
   NewGalleryPerfTest(this.galleryDir) : super(galleryDir.path, 'test_driver/transitions_perf.dart', 'transitions');

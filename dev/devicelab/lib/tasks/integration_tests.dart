@@ -6,9 +6,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:path/path.dart' as path;
-import '../framework/adb.dart';
-import '../framework/framework.dart';
-import '../framework/utils.dart';
+import 'package:flutter_devicelab/framework/adb.dart';
+import 'package:flutter_devicelab/framework/framework.dart';
+import 'package:flutter_devicelab/framework/utils.dart';
 
 TaskFunction createChannelsIntegrationTest() {
   return DriverTest(
