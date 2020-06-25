@@ -1534,8 +1534,11 @@ class LiveTestWidgetsFlutterBinding extends TestWidgetsFlutterBinding {
 
   @override
   ViewConfiguration createViewConfiguration() {
+    final double devicePixelRatio = window.devicePixelRatio;
+    final Size size = _surfaceSize ?? window.physicalSize / devicePixelRatio;
     return TestViewConfiguration(
-      size: _surfaceSize ?? _kDefaultTestViewportSize,
+      // size: _surfaceSize ?? _kDefaultTestViewportSize,
+      size: size,
       window: window,
     );
   }
