@@ -1682,7 +1682,7 @@ Offset _deserializeOffset(dynamic value, [Offset defaultValue = Offset.zero]) {
   if (value == null) {
     return defaultValue;
   }
-  final List<double> coordinates = value as List<double>;
+  final List<dynamic> coordinates = value as List<dynamic>;
   assert(coordinates.length == 2);
-  return Offset(coordinates[0], coordinates[1]);
+  return Offset(coordinates[0] as double, coordinates[1] as double);
 }

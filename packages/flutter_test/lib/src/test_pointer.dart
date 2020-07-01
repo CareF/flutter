@@ -448,11 +448,14 @@ class TestEventPack {
     Duration timeOffset = Duration.zero,
     }) :
     timeStamp = Duration(microseconds: jsonObject['ts'] as int) - timeOffset,
-    events = <PointerEvent>[
-      for (final Map<String, dynamic> event in
-          jsonObject['events'] as List<Map<String, dynamic>>)
-        PointerEvent.fromJson(event)
-    ];
+    events = (jsonObject['events'] as List<dynamic>).map<PointerEvent>(
+      (dynamic event) => PointerEvent.fromJson(event as Map<String, dynamic>)
+    ).toList();
+
+  @override
+  String toString() {
+    return '(ts: ${timeStamp.inMicroseconds}, length: ${events.length})';
+  }
 
   /// The time stamp of when the event happens
   final Duration timeStamp;
@@ -468,17 +471,19 @@ class TestEventRecord {
 
   /// Deserialize the array of events.
   factory TestEventRecord.fromJson(String jsonString, {Duration timeOffset}) {
-    final List<Map<String, dynamic>> jsonObject =
-        json.decode(jsonString) as List<Map<String, dynamic>>;
+    final List<Map<String, dynamic>> jsonObject = <Map<String, dynamic>>[
+        for (final dynamic item in json.decode(jsonString) as List<dynamic>)
+        item as Map<String, dynamic>
+    ];
     assert(jsonObject.isNotEmpty);
     timeOffset ??= Duration(microseconds: jsonObject[0]['ts'] as int);
-    return TestEventRecord._fromJsonObject(jsonObject);
+    return TestEventRecord._fromJsonObject(jsonObject, timeOffset);
   }
 
   TestEventRecord._fromJsonObject(
-    List<Map<String, dynamic>> jsonObjects, {
-    Duration timeOffset,
-  }):
+    List<Map<String, dynamic>> jsonObjects, [
+      Duration timeOffset,
+    ]):
     packs = <TestEventPack>[
       for (final Map<String, dynamic> jsonObject in jsonObjects)
         TestEventPack._fromJson(jsonObject, timeOffset: timeOffset)
