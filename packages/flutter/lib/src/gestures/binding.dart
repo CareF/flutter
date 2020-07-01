@@ -6,6 +6,7 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:developer';
 import 'dart:ui' as ui show PointerDataPacket;
 
 import 'package:flutter/foundation.dart';
@@ -84,6 +85,15 @@ mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, H
     // We convert pointer data to logical pixels so that e.g. the touch slop can be
     // defined in a device-independent manner.
     _pendingPointerEvents.addAll(PointerEventConverter.expand(packet.data, window.devicePixelRatio));
+    if (kDebugMode) {
+      // TODO(CareF): change the flag to a customizable one
+      Timeline.instantSync(
+        'GestureBinding receive PointerEvents',
+        arguments: <String, List<PointerEvent>>{
+          'events': _pendingPointerEvents.toList(),
+        },
+      );
+    }
     if (!locked)
       _flushPointerEventQueue();
   }
