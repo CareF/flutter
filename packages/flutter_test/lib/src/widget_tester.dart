@@ -25,6 +25,7 @@ import 'finders.dart';
 import 'matchers.dart';
 import 'test_async_utils.dart';
 import 'test_compat.dart';
+import 'test_pointer.dart';
 import 'test_text_input.dart';
 
 /// Keep users from needing multiple imports to test semantics.
@@ -460,6 +461,32 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
       binding.attachRootWidget(widget);
       binding.scheduleFrame();
       return binding.pump(duration, phase);
+    });
+  }
+
+  @override
+  Future<void> handleInputEventsRecords(String jsonString) {
+    final TestEventRecord records = TestEventRecord.fromJson(jsonString);
+    final DateTime startTime = binding.clock.now();
+    return TestAsyncUtils.guard<void>(() async {
+      for(final TestEventPack pack in records.packs) {
+        final Duration timeDiff = pack.timeStamp - binding.clock.now().difference(startTime);
+        if (timeDiff.isNegative) {
+          // Flush all past events
+          // maybe trigger a warning
+          pack.events.forEach(binding.handlePointerEvent);
+        }
+        else {
+          await Future<void>.delayed(timeDiff, () {
+            pack.events.forEach(binding.handlePointerEvent);
+          });
+          if (!(binding is LiveTestWidgetsFlutterBinding && (
+            binding as LiveTestWidgetsFlutterBinding).framePolicy
+              == LiveTestWidgetsFlutterBindingFramePolicy.fullyLive)) {
+            binding.pump();
+          }
+        }
+      }
     });
   }
 
