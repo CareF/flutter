@@ -467,8 +467,8 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
   @override
   Future<void> handleInputEventsRecords(String jsonString) {
     final TestEventRecord records = TestEventRecord.fromJson(jsonString);
-    final DateTime startTime = binding.clock.now();
     return TestAsyncUtils.guard<void>(() async {
+      final DateTime startTime = binding.clock.now();
       for(final TestEventPack pack in records.packs) {
         final Duration timeDiff = pack.timeStamp - binding.clock.now().difference(startTime);
         if (timeDiff.isNegative) {
@@ -483,7 +483,7 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
           if (!(binding is LiveTestWidgetsFlutterBinding && (
             binding as LiveTestWidgetsFlutterBinding).framePolicy
               == LiveTestWidgetsFlutterBindingFramePolicy.fullyLive)) {
-            binding.pump();
+            await binding.pump();
           }
         }
       }
