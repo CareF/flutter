@@ -400,6 +400,10 @@ abstract class WidgetController {
     });
   }
 
+  /// handle a series of input events using json String generated from
+  /// [flutter_driver.PointerEventRecord]
+  Future<void> handleInputEventsRecords(String jsonString);
+
   /// Called to indicate that time should advance.
   ///
   /// This is invoked by [flingFrom], for instance, so that the sequence of
@@ -678,5 +682,10 @@ class LiveWidgetController extends WidgetController {
       await Future<void>.delayed(duration);
     binding.scheduleFrame();
     await binding.endOfFrame;
+  }
+
+  @override
+  Future<void> handleInputEventsRecords(String jsonString) {
+    throw UnimplementedError;
   }
 }

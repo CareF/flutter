@@ -111,7 +111,7 @@ mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, H
   void _flushPointerEventQueue() {
     assert(!locked);
     while (_pendingPointerEvents.isNotEmpty)
-      _handlePointerEvent(_pendingPointerEvents.removeFirst());
+      handlePointerEvent(_pendingPointerEvents.removeFirst());
   }
 
   /// A router that routes all pointer events received from the engine.
@@ -131,7 +131,9 @@ mixin GestureBinding on BindingBase implements HitTestable, HitTestDispatcher, H
   /// hit-testing on every frame.
   final Map<int, HitTestResult> _hitTests = <int, HitTestResult>{};
 
-  void _handlePointerEvent(PointerEvent event) {
+  /// Handle an event, performe HitTest if necessary and call [dispatchEvent]
+  /// if there is a match or was a match in the context.
+  void handlePointerEvent(PointerEvent event) {
     assert(!locked);
     HitTestResult hitTestResult;
     if (event is PointerDownEvent || event is PointerSignalEvent) {
