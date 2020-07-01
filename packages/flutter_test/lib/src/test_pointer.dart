@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -436,4 +437,53 @@ class TestGesture {
       _result = null;
     });
   }
+}
+
+/// A single record to input event queue.
+class TestEventPack {
+  /// This is a naive constructor.
+  TestEventPack(this.timeStamp, this.events);
+
+  TestEventPack._fromJson(Map<String, dynamic> jsonObject, {
+    Duration timeOffset = Duration.zero,
+    }) :
+    timeStamp = Duration(microseconds: jsonObject['ts'] as int) - timeOffset,
+    events = <PointerEvent>[
+      for (final Map<String, dynamic> event in
+          jsonObject['events'] as List<Map<String, dynamic>>)
+        PointerEvent.fromJson(event)
+    ];
+
+  /// The time stamp of when the event happens
+  final Duration timeStamp;
+
+  /// The event.
+  final List<PointerEvent> events;
+}
+
+/// A series of input events.
+class TestEventRecord {
+  /// This is a naive constructor.
+  TestEventRecord(this.packs);
+
+  /// Deserialize the array of events.
+  factory TestEventRecord.fromJson(String jsonString, {Duration timeOffset}) {
+    final List<Map<String, dynamic>> jsonObject =
+        json.decode(jsonString) as List<Map<String, dynamic>>;
+    assert(jsonObject.isNotEmpty);
+    timeOffset ??= Duration(microseconds: jsonObject[0]['ts'] as int);
+    return TestEventRecord._fromJsonObject(jsonObject);
+  }
+
+  TestEventRecord._fromJsonObject(
+    List<Map<String, dynamic>> jsonObjects, {
+    Duration timeOffset,
+  }):
+    packs = <TestEventPack>[
+      for (final Map<String, dynamic> jsonObject in jsonObjects)
+        TestEventPack._fromJson(jsonObject, timeOffset: timeOffset)
+    ];
+
+  /// Records of input events.
+  final List<TestEventPack> packs;
 }
