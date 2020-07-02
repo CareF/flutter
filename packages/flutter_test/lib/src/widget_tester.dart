@@ -467,6 +467,9 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
   @override
   Future<void> handleInputEventsRecords(String jsonString) {
     final TestEventRecord records = TestEventRecord.fromJson(jsonString);
+    // hitTestHistory is an equivalence of _hitTests in [GestureBinding]
+    final Map<int, HitTestResult> hitTestHistory = <int, HitTestResult>{};
+    assert(hitTestHistory.isEmpty);
     return TestAsyncUtils.guard<void>(() async {
       final DateTime startTime = binding.clock.now();
       for(final TestEventPack pack in records.packs) {
@@ -474,11 +477,15 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
         if (timeDiff.isNegative) {
           // Flush all past events
           // maybe trigger a warning
-          pack.events.forEach(binding.handlePointerEvent);
+          for (final PointerEvent event in pack.events) {
+            await _handlePointerEvent(event, hitTestHistory);
+          }
         }
         else {
-          await Future<void>.delayed(timeDiff, () {
-            pack.events.forEach(binding.handlePointerEvent);
+          await Future<void>.delayed(timeDiff, () async {
+            for (final PointerEvent event in pack.events) {
+              await _handlePointerEvent(event, hitTestHistory);
+          }
           });
           if (!(binding is LiveTestWidgetsFlutterBinding && (
             binding as LiveTestWidgetsFlutterBinding).framePolicy
@@ -487,7 +494,50 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
           }
         }
       }
+      assert(hitTestHistory.isEmpty);
     });
+  }
+
+  // This is a parallele implementation of [GestureBinding._handlePointerEvent]
+  // to make compativle with test bindings.
+  Future<void> _handlePointerEvent(
+    PointerEvent event,
+    Map<int, HitTestResult> _hitTests
+  ) async {
+    HitTestResult hitTestResult;
+    if (event is PointerDownEvent || event is PointerSignalEvent) {
+      assert(!_hitTests.containsKey(event.pointer));
+      hitTestResult = HitTestResult();
+      binding.hitTest(hitTestResult, event.position);
+      if (event is PointerDownEvent) {
+        _hitTests[event.pointer] = hitTestResult;
+      }
+      assert(() {
+        if (debugPrintHitTestResults)
+          debugPrint('$event: $hitTestResult');
+        return true;
+      }());
+    } else if (event is PointerUpEvent || event is PointerCancelEvent) {
+      hitTestResult = _hitTests.remove(event.pointer);
+    } else if (event.down) {
+      // Because events that occur with the pointer down (like
+      // PointerMoveEvents) should be dispatched to the same place that their
+      // initial PointerDownEvent was, we want to re-use the path we found when
+      // the pointer went down, rather than do hit detection each time we get
+      // such an event.
+      hitTestResult = _hitTests[event.pointer];
+    }
+    assert(() {
+      if (debugPrintMouseHoverEvents && event is PointerHoverEvent)
+        debugPrint('$event');
+      return true;
+    }());
+    if (hitTestResult != null ||
+        event is PointerHoverEvent ||
+        event is PointerAddedEvent ||
+        event is PointerRemovedEvent) {
+      await sendEventToBinding(event, hitTestResult);
+    }
   }
 
   /// Triggers a frame after `duration` amount of time.
