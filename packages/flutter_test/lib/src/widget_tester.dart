@@ -465,14 +465,13 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
   }
 
   @override
-  Future<void> handleInputEventsRecords(String jsonString) {
-    final TestEventRecord records = TestEventRecord.fromJson(jsonString);
+  Future<void> handlePointerEventPack(List<PointerEventPack> records) {
     // hitTestHistory is an equivalence of _hitTests in [GestureBinding]
     final Map<int, HitTestResult> hitTestHistory = <int, HitTestResult>{};
     assert(hitTestHistory.isEmpty);
     return TestAsyncUtils.guard<void>(() async {
       final DateTime startTime = binding.clock.now();
-      for(final TestEventPack pack in records.packs) {
+      for(final PointerEventPack pack in records) {
         final Duration timeDiff = pack.timeStamp - binding.clock.now().difference(startTime);
         if (timeDiff.isNegative) {
           // Flush all past events

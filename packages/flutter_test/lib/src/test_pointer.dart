@@ -439,23 +439,28 @@ class TestGesture {
   }
 }
 
-/// A single record to input event queue.
-class TestEventPack {
-  /// This is a naive constructor.
-  TestEventPack(this.timeStamp, this.events);
+/// A pack of input PointerEvent queue.
+///
+/// [timeStamp] is used to indicate the time when the pack is received.
+///
+/// This is a simulation of how the framework is receiving input events from
+/// the engine. See [GestureBinding] and [PointerDataPacket].
+class PointerEventPack {
+  /// Creates a pack of PointerEvents.
+  PointerEventPack(this.timeStamp, this.events);
 
-  TestEventPack._fromJson(Map<String, dynamic> jsonObject, {
-    Duration timeOffset = Duration.zero,
-    }) :
+  /// Deserializing a pack of PointerEvents from a json String.
+  ///
+  /// The `timeOffset` value is subtraced from the timestamps in the json
+  /// record.
+  ///
+  /// See [PointerEvent.fromJson].
+  PointerEventPack.fromJson(Map<String, dynamic> jsonObject, {
+    Duration timeOffset = Duration.zero}) :
     timeStamp = Duration(microseconds: jsonObject['ts'] as int) - timeOffset,
     events = (jsonObject['events'] as List<dynamic>).map<PointerEvent>(
       (dynamic event) => PointerEvent.fromJson(event as Map<String, dynamic>)
     ).toList();
-
-  @override
-  String toString() {
-    return '(ts: ${timeStamp.inMicroseconds}, length: ${events.length})';
-  }
 
   /// The time stamp of when the event happens
   final Duration timeStamp;
@@ -464,31 +469,24 @@ class TestEventPack {
   final List<PointerEvent> events;
 }
 
-/// A series of input events.
-class TestEventRecord {
-  /// This is a naive constructor.
-  TestEventRecord(this.packs);
+/// Deserialize json String to a list of [PointerEventPack]. This
+///
+/// The json String can be generated from a flutter driver run with
+/// [PointerEventRecord].
+///
+/// The `timeOffset` value is subtraced from the timestamps in the json record.
+/// Default value is to make the first event with timestamp [Duration.zero].
+List<PointerEventPack> pointerEventPackFromJson(
+  String jsonString, { Duration timeOffset,}) {
+  final List<Map<String, dynamic>> jsonObjects = <Map<String, dynamic>>[
+    for (final dynamic item in json.decode(jsonString) as List<dynamic>)
+      item as Map<String, dynamic>
+  ];
+  assert(jsonObjects.isNotEmpty);
 
-  /// Deserialize the array of events.
-  factory TestEventRecord.fromJson(String jsonString, {Duration timeOffset}) {
-    final List<Map<String, dynamic>> jsonObject = <Map<String, dynamic>>[
-        for (final dynamic item in json.decode(jsonString) as List<dynamic>)
-        item as Map<String, dynamic>
-    ];
-    assert(jsonObject.isNotEmpty);
-    timeOffset ??= Duration(microseconds: jsonObject[0]['ts'] as int);
-    return TestEventRecord._fromJsonObject(jsonObject, timeOffset);
-  }
-
-  TestEventRecord._fromJsonObject(
-    List<Map<String, dynamic>> jsonObjects, [
-      Duration timeOffset,
-    ]):
-    packs = <TestEventPack>[
+  timeOffset ??= Duration(microseconds: jsonObjects[0]['ts'] as int);
+  return <PointerEventPack>[
       for (final Map<String, dynamic> jsonObject in jsonObjects)
-        TestEventPack._fromJson(jsonObject, timeOffset: timeOffset)
+        PointerEventPack.fromJson(jsonObject, timeOffset: timeOffset)
     ];
-
-  /// Records of input events.
-  final List<TestEventPack> packs;
 }
