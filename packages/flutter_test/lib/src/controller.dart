@@ -402,7 +402,15 @@ abstract class WidgetController {
 
   /// handle a series of input events using json String generated from
   /// [flutter_driver.PointerEventRecord]
-  Future<void> handleInputEventsRecords(String jsonString);
+  Future<void> handleInputEventsRecords(String jsonString) {
+    return handlePointerEventPack(pointerEventPackFromJson(jsonString));
+  }
+
+  /// A simulator of how the framework handles a serials of [PointerEvent]s
+  /// received from the flutter engine.
+  ///
+  /// Se [PointerEventPack].
+  Future<void> handlePointerEventPack(List<PointerEventPack> records);
 
   /// Called to indicate that time should advance.
   ///
@@ -685,7 +693,7 @@ class LiveWidgetController extends WidgetController {
   }
 
   @override
-  Future<void> handleInputEventsRecords(String jsonString) {
+  Future<void> handlePointerEventPack(List<PointerEventPack> records) {
     throw UnimplementedError;
   }
 }
