@@ -468,7 +468,6 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
   Future<void> handlePointerEventPack(List<PointerEventPack> records) {
     // hitTestHistory is an equivalence of _hitTests in [GestureBinding]
     final Map<int, HitTestResult> hitTestHistory = <int, HitTestResult>{};
-    assert(hitTestHistory.isEmpty);
     return TestAsyncUtils.guard<void>(() async {
       final DateTime startTime = binding.clock.now();
       for(final PointerEventPack pack in records) {
@@ -481,16 +480,19 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
           }
         }
         else {
-          await Future<void>.delayed(timeDiff, () async {
+          await binding.executeLater(timeDiff, () async {
             for (final PointerEvent event in pack.events) {
               await _handlePointerEvent(event, hitTestHistory);
-          }
+            }
           });
-          if (!(binding is LiveTestWidgetsFlutterBinding && (
-            binding as LiveTestWidgetsFlutterBinding).framePolicy
-              == LiveTestWidgetsFlutterBindingFramePolicy.fullyLive)) {
-            await binding.pump();
+          // TODO(CareF): delete the if sentence when
+          // https://github.com/flutter/flutter/issues/60739 is fixed
+          if (binding is LiveTestWidgetsFlutterBinding &&
+              (binding as LiveTestWidgetsFlutterBinding).framePolicy ==
+              LiveTestWidgetsFlutterBindingFramePolicy.fullyLive) {
+            continue;
           }
+          await binding.pump();
         }
       }
       assert(hitTestHistory.isEmpty);
