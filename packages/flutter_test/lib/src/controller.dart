@@ -410,7 +410,7 @@ abstract class WidgetController {
   /// received from the flutter engine.
   ///
   /// Se [PointerEventPack].
-  Future<void> handlePointerEventPack(List<PointerEventPack> records);
+  Future<void> handlePointerEventPack(Iterable<PointerEventPack> records);
 
   /// Called to indicate that time should advance.
   ///

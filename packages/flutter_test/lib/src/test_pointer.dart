@@ -466,7 +466,7 @@ class PointerEventPack {
   final Duration timeStamp;
 
   /// The event.
-  final List<PointerEvent> events;
+  final Iterable<PointerEvent> events;
 }
 
 /// Deserialize json String to a list of [PointerEventPack]. This
@@ -476,8 +476,8 @@ class PointerEventPack {
 ///
 /// The `timeOffset` value is subtraced from the timestamps in the json record.
 /// Default value is to make the first event with timestamp [Duration.zero].
-List<PointerEventPack> pointerEventPackFromJson(
-  String jsonString, { Duration timeOffset,}) {
+Iterable<PointerEventPack> pointerEventPackFromJson(
+  String jsonString, { Duration timeOffset,}) sync* {
   final List<Map<String, dynamic>> jsonObjects = <Map<String, dynamic>>[
     for (final dynamic item in json.decode(jsonString) as List<dynamic>)
       item as Map<String, dynamic>
@@ -485,8 +485,6 @@ List<PointerEventPack> pointerEventPackFromJson(
   assert(jsonObjects.isNotEmpty);
 
   timeOffset ??= Duration(microseconds: jsonObjects[0]['ts'] as int);
-  return <PointerEventPack>[
-      for (final Map<String, dynamic> jsonObject in jsonObjects)
-        PointerEventPack.fromJson(jsonObject, timeOffset: timeOffset)
-    ];
+  for (final Map<String, dynamic> jsonObject in jsonObjects)
+      yield PointerEventPack.fromJson(jsonObject, timeOffset: timeOffset);
 }
