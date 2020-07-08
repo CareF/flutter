@@ -595,21 +595,28 @@ class WidgetTester extends WidgetController implements HitTestDispatcher, Ticker
   ///
   /// Example:
   ///
-  ///     testWidgets('pumpContinuous', (WidgetTester tester) async {
-  ///       await tester.pumpWidget(const Text(
-  ///         'foo',
-  ///         textDirection: TextDirection.ltr,
-  ///       ));
-  ///       final AnimationController test = AnimationController(
-  ///         duration: const Duration(milliseconds: 200),
-  ///         vsync: tester,
-  ///       );
-  ///       test.forward(from: 0.0);
-  ///       final int count = await tester.pumpContinuous(const Duration(milliseconds: 80));
-  ///       const int defaultFrameInterval = 1e6 ~/ 60;
-  ///       // ends after 80 ms
-  ///       expect(count, 1 + (80e3/defaultFrameInterval).floor());
-  ///     });
+  /// {@tool snippet}
+  ///
+  /// This sample shows a unit test using [pumpContinuous].
+  ///
+  /// ```Dart
+  /// testWidgets('pumpContinuous', (WidgetTester tester) async {
+  ///   await tester.pumpWidget(const Text(
+  ///     'foo',
+  ///     textDirection: TextDirection.ltr,
+  ///   ));
+  ///   final AnimationController test = AnimationController(
+  ///     duration: const Duration(milliseconds: 200),
+  ///     vsync: tester,
+  ///   );
+  ///   test.forward(from: 0.0);
+  ///   final int count = await tester.pumpContinuous(const Duration(milliseconds: 80));
+  ///   const int defaultFrameInterval = 1e6 ~/ 60;
+  ///   // ends after 80 ms
+  ///   expect(count, 1 + (80e3/defaultFrameInterval).floor());
+  /// });
+  /// ```
+  /// {@end-tool}
   Future<int> pumpContinuous(Duration duration, {
     EnginePhase phase = EnginePhase.sendSemanticsUpdate,
     double frameRefreshRate = 60,
