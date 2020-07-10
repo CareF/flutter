@@ -1452,6 +1452,12 @@ class LiveTestWidgetsFlutterBinding extends TestWidgetsFlutterBinding {
   /// Events dispatched by [TestGesture] are not affected by this.
   HitTestDispatcher deviceEventDispatcher;
 
+  /// Determines how the binding should react to device input.
+  ///
+  /// If this flag is set to true, device input is handled as valid input,
+  /// otherwise device input is handled by [deviceEventDIspatcher].
+  bool reactToDeviceInput = false;
+
   @override
   void dispatchEvent(
     PointerEvent event,
@@ -1477,6 +1483,10 @@ class LiveTestWidgetsFlutterBinding extends TestWidgetsFlutterBinding {
         super.dispatchEvent(event, hitTestResult, source: source);
         break;
       case TestBindingEventSource.device:
+        if (reactToDeviceInput) {
+          super.dispatchEvent(event, hitTestResult, source: TestBindingEventSource.test);
+          break;
+        }
         if (deviceEventDispatcher != null)
           deviceEventDispatcher.dispatchEvent(event, hitTestResult);
         break;
