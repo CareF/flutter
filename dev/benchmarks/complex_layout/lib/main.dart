@@ -5,6 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 
+import 'watched_scroller.dart';
+
 void main() {
   runApp(
     ComplexLayoutApp()
@@ -26,7 +28,10 @@ class ComplexLayoutAppState extends State<ComplexLayoutApp> {
     return MaterialApp(
       theme: lightTheme ? ThemeData.light() : ThemeData.dark(),
       title: 'Advanced Layout',
-      home: scrollMode == ScrollMode.complex ? const ComplexLayout() : const TileScrollLayout());
+      home: scrollMode == ScrollMode.complex
+          ? ComplexLayout(watching: _recordScroller)
+          : TileScrollLayout(watching: _recordScroller),
+    );
   }
 
   bool _lightTheme = true;
@@ -45,6 +50,14 @@ class ComplexLayoutAppState extends State<ComplexLayoutApp> {
     });
   }
 
+  bool _recordScroller = false;
+  bool get recordScroller => _recordScroller;
+  set recordScroller(bool value) {
+    setState(() {
+      _recordScroller = value;
+    });
+  }
+
   void toggleAnimationSpeed() {
     setState(() {
       timeDilation = (timeDilation != 1.0) ? 1.0 : 5.0;
@@ -53,33 +66,40 @@ class ComplexLayoutAppState extends State<ComplexLayoutApp> {
 }
 
 class TileScrollLayout extends StatelessWidget {
-  const TileScrollLayout({ Key key }) : super(key: key);
+  TileScrollLayout({this.watching = false, Key key }) : super(key: key);
+
+  final bool watching;
+  final ScrollController controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
+    final ListView body = ListView.builder(
+      key: const Key('tiles-scroll'),
+      controller: controller,
+      itemCount: 200,
+      itemBuilder: (BuildContext context, int index) {
+        return Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Material(
+            elevation: (index % 5 + 1).toDouble(),
+            color: Colors.white,
+            child: IconBar(),
+          ),
+        );
+      },
+    );
     return Scaffold(
       appBar: AppBar(title: const Text('Tile Scrolling Layout')),
-      body: ListView.builder(
-        key: const Key('tiles-scroll'),
-        itemCount: 200,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Material(
-              elevation: (index % 5 + 1).toDouble(),
-              color: Colors.white,
-              child: IconBar(),
-            ),
-          );
-        },
-      ),
+      body: watching ? WatchedScroller(child: body, controller: controller) : body,
       drawer: const GalleryDrawer(),
     );
   }
 }
 
 class ComplexLayout extends StatefulWidget {
-  const ComplexLayout({ Key key }) : super(key: key);
+  const ComplexLayout({this.watching = false, Key key }) : super(key: key);
+
+  final bool watching;
 
   @override
   ComplexLayoutState createState() => ComplexLayoutState();
@@ -88,8 +108,20 @@ class ComplexLayout extends StatefulWidget {
 }
 
 class ComplexLayoutState extends State<ComplexLayout> {
+  final ScrollController controller = ScrollController();
+
   @override
   Widget build(BuildContext context) {
+    final ListView body = ListView.builder(
+      key: const Key('complex-scroll'), // this key is used by the driver test
+      controller: controller,
+      itemBuilder: (BuildContext context, int index) {
+        if (index % 2 == 0)
+          return FancyImageItem(index, key: PageStorageKey<int>(index));
+        else
+          return FancyGalleryItem(index, key: PageStorageKey<int>(index));
+      },
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Advanced Layout'),
@@ -107,15 +139,7 @@ class ComplexLayoutState extends State<ComplexLayout> {
       body: Column(
         children: <Widget>[
           Expanded(
-            child: ListView.builder(
-              key: const Key('complex-scroll'), // this key is used by the driver test
-              itemBuilder: (BuildContext context, int index) {
-                if (index % 2 == 0)
-                  return FancyImageItem(index, key: PageStorageKey<int>(index));
-                else
-                  return FancyGalleryItem(index, key: PageStorageKey<int>(index));
-              },
-            ),
+            child: widget.watching ? WatchedScroller(child: body, controller: controller) : body ,
           ),
           BottomBar(),
         ],
@@ -595,15 +619,30 @@ class BottomBarButton extends StatelessWidget {
   }
 }
 
-class GalleryDrawer extends StatelessWidget {
+class GalleryDrawer extends StatefulWidget {
   const GalleryDrawer({ Key key }) : super(key: key);
 
+  @override
+  _GalleryDrawerState createState() => _GalleryDrawerState();
+}
+
+class _GalleryDrawerState extends State<GalleryDrawer> {
   void _changeTheme(BuildContext context, bool value) {
-    ComplexLayoutApp.of(context).lightTheme = value;
+    setState(() {
+      ComplexLayoutApp.of(context).lightTheme = value;
+    });
   }
 
   void _changeScrollMode(BuildContext context, ScrollMode mode) {
-    ComplexLayoutApp.of(context).scrollMode = mode;
+    setState(() {
+      ComplexLayoutApp.of(context).scrollMode = mode;
+    });
+  }
+
+  void _changeRecordSetting(BuildContext context, bool value) {
+    setState(() {
+      ComplexLayoutApp.of(context).recordScroller = value;
+    });
   }
 
   @override
@@ -623,7 +662,8 @@ class GalleryDrawer extends StatelessWidget {
             title: const Text('Scroll Mode'),
             onTap: () {
               _changeScrollMode(context, currentMode == ScrollMode.complex ? ScrollMode.tile : ScrollMode.complex);
-             Navigator.pop(context);
+              // This pop is actually not working due to #59638
+              Navigator.pop(context);
             },
             trailing: Text(currentMode == ScrollMode.complex ? 'Tile' : 'Complex'),
           ),
@@ -657,7 +697,29 @@ class GalleryDrawer extends StatelessWidget {
             onTap: () { ComplexLayoutApp.of(context).toggleAnimationSpeed(); },
             trailing: Checkbox(
               value: timeDilation != 1.0,
-              onChanged: (bool value) { ComplexLayoutApp.of(context).toggleAnimationSpeed(); },
+              onChanged: (bool value) {
+                setState(() {
+                  ComplexLayoutApp.of(context).toggleAnimationSpeed();
+                });
+              },
+            ),
+          ),
+          const Divider(),
+          ListTile(
+            key: const Key('record-switcher'),
+            leading: const Icon(Icons.equalizer),
+            title: const Text('Record Scroller Position'),
+            selected: ComplexLayoutApp.of(context).recordScroller,
+            onTap: () {
+              _changeRecordSetting(context, !ComplexLayoutApp.of(context).recordScroller);
+              Navigator.pop(context);
+            },
+            trailing: Checkbox(
+              value: ComplexLayoutApp.of(context).recordScroller,
+              onChanged: (bool value) {
+                _changeRecordSetting(context, value);
+                Navigator.pop(context);
+              },
             ),
           ),
         ],
