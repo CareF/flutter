@@ -18,7 +18,7 @@ import 'package:complex_layout/main.dart' as app;
 Future<void> main() async {
   final E2EWidgetsFlutterBinding binding =
   E2EWidgetsFlutterBinding.ensureInitialized() as E2EWidgetsFlutterBinding;
-  binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+  binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.benchmarkLive;
   testWidgets('E2E test with array input', (WidgetTester tester) async {
     app.main();
     await tester.pumpAndSettle();
