@@ -24,13 +24,19 @@ String testOutputFilename = 'e2e_perf_summary';
 
 Future<void> main() async {
   final FlutterDriver driver = await FlutterDriver.connect();
-  final String jsonResult =
-      await driver.requestData(null, timeout: const Duration(minutes: 1));
+  String jsonResult;
+  final Timeline timeline = await driver.traceAction(() async {
+    jsonResult = await driver.requestData(null, timeout: const Duration(minutes: 1));
+  });
   final e2e.Response response = e2e.Response.fromJson(jsonResult);
   await driver.close();
 
   if (response.allTestsPassed) {
     print('All tests passed.');
+
+    final TimelineSummary summary = TimelineSummary.summarize(timeline);
+    await summary.writeTimelineToFile('e2e_timeline', pretty: true);
+    await summary.writeSummaryToFile('e2e_timeline', pretty: true);
 
     await fs.directory(testOutputsDirectory).create(recursive: true);
     final File file = fs.file(path.join(

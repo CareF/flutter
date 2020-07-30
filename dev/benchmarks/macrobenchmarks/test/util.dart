@@ -42,6 +42,7 @@ void macroPerfTestE2E(
 
   testWidgets(testName, (WidgetTester tester) async {
     assert(tester.binding == binding);
+    await watchPerformance(binding, () async {
     app.main();
     await tester.pumpAndSettle();
 
@@ -72,7 +73,6 @@ void macroPerfTestE2E(
       await setup(tester);
     }
 
-    await watchPerformance(binding, () async {
       final Future<void> durationFuture = tester.binding.delayed(duration);
       if (body != null) {
         await body(tester);
