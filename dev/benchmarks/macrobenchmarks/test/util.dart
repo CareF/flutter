@@ -92,6 +92,8 @@ Future<void> watchPerformance(
   await action();
   binding.removeTimingsCallback(watcher);
   // TODO(CareF): determine if it's running on firebase and report metric online
+  // The first frame has a huge build time, resulting in artifacts
+  frameTimings.removeAt(0);
   final FrameTimingSummarizer frameTimes = FrameTimingSummarizer(frameTimings);
   binding.reportData = <String, dynamic>{'performance': frameTimes.summary};
 }
